@@ -15,13 +15,13 @@
         <div class="feed-toggle">
           <ul class="nav nav-pills outline-active">
             <li class="nav-item" v-if="user">
-              <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'your_feed'}}" :class="{active: tab === 'your_feed'}">Your Feed</nuxt-link>
+              <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'your_feed'}}" :class="{active: tab === 'your_feed'}" exact>Your Feed</nuxt-link>
             </li>
             <li class="nav-item">
-              <nuxt-link class="nav-link active" :to="{name: 'home'}">Global Feed</nuxt-link>
+              <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'global_feed'}}" :class="{active: tab === 'global_feed'}" exact>Global Feed</nuxt-link>
             </li>
             <li class="nav-item" v-if="tag">
-              <nuxt-link class="nav-link active" :to="{name: 'home'}">#{{ tag }}</nuxt-link>
+              <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'tag', tag: tag}}" :class="{active: tab === tag}">#{{ tag }}</nuxt-link>
             </li>
           </ul>
         </div>
@@ -46,7 +46,7 @@
         <nav>
           <ul class="pagination">
             <li class="page-item" :class="{ active: item === page}" v-for="item in totalPage" :key="item">
-              <nuxt-link :to="{name: 'home', query: {page: item, tag: $route.query.tag}}" class="page-link">{{ item }}</nuxt-link>
+              <nuxt-link :to="{name: 'home', query: {page: item, tag: $route.query.tag, tab: tab}}" class="page-link">{{ item }}</nuxt-link>
             </li>
           </ul>
         </nav>
@@ -57,7 +57,7 @@
           <p>Popular Tags</p>
 
           <div class="tag-list">
-            <nuxt-link :to="{name: 'home', query: {page: 1, tag: item}}" class="tag-pill tag-default" v-for="item in tags" :key="item">{{ item }}</nuxt-link>
+            <nuxt-link :to="{name: 'home', query: {page: 1, tag: item, tab: 'tag'}}" class="tag-pill tag-default" v-for="item in tags" :key="item">{{ item }}</nuxt-link>
             
           </div>
         </div>
@@ -70,18 +70,21 @@
 </template>
 
 <script>
-import { getArticles } from '@/api/article'
+import { getArticles, getFeedArticles } from '@/api/article'
 import { getTags } from '@/api/tag'
 import { mapState } from 'vuex'
 export default {
   name: 'HomeIndex',
-  async asyncData ({ query }) {
+  async asyncData ({ query, store }) {
     const page = Number.parseInt(query.page) || 1
     const limit = 20
-    const { tag } = query
+    const { tag, tab = 'global_feed' } = query
     // 并行 优化渲染时间
+    const loadArticles = store.state.user && tab === 'your_feed'
+      ? getFeedArticles
+      : getArticles
     const [articleRes, tagRes] = await Promise.all([
-      getArticles({
+      loadArticles({
         limit,
         offset: (page - 1) * limit,
         tag
@@ -97,10 +100,11 @@ export default {
       tags,
       limit,
       page,
-      tag
+      tag,
+      tab
     }
   },
-  watchQuery: ['page', 'tag'],
+  watchQuery: ['page', 'tag', 'tab'],
   computed: {
     ...mapState(['user']),
     totalPage () {

@@ -8,3 +8,11 @@ export const getArticles = params => {
     params
   })
 }
+
+export const getFeedArticles = params => {
+  return request({
+    method: 'GET',
+    url: '/api/articles/feed',
+    params
+  })
+}
