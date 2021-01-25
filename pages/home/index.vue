@@ -15,13 +15,13 @@
         <div class="feed-toggle">
           <ul class="nav nav-pills outline-active">
             <li class="nav-item" v-if="user">
-              <a class="nav-link disabled" href="">Your Feed</a>
+              <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'your_feed'}}" :class="{active: tab === 'your_feed'}">Your Feed</nuxt-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="">Global Feed</a>
+              <nuxt-link class="nav-link active" :to="{name: 'home'}">Global Feed</nuxt-link>
             </li>
             <li class="nav-item" v-if="tag">
-              <a class="nav-link active" href="">#{{ tag }}</a>
+              <nuxt-link class="nav-link active" :to="{name: 'home'}">#{{ tag }}</nuxt-link>
             </li>
           </ul>
         </div>
