@@ -14,9 +14,11 @@
       <div class="col-md-9">
         <div class="feed-toggle">
           <ul class="nav nav-pills outline-active">
+            <!-- 关注的文章列表 -->
             <li class="nav-item" v-if="user">
               <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'your_feed'}}" :class="{active: tab === 'your_feed'}" exact>Your Feed</nuxt-link>
             </li>
+            <!-- 所有的文章列表 -->
             <li class="nav-item">
               <nuxt-link class="nav-link" :to="{name: 'home', query: {tab: 'global_feed'}}" :class="{active: tab === 'global_feed'}" exact>Global Feed</nuxt-link>
             </li>
@@ -31,9 +33,9 @@
             <nuxt-link :to="{name: 'profile', params: {username: article.author.username}}"><img :src="article.author.image" /></nuxt-link>
             <div class="info">
               <nuxt-link class="author" :to="{name: 'profile', params: {username: article.author.username}}">{{ article.author.username }}</nuxt-link>
-              <span class="date">{{ article.createdAt }}</span>
+              <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
             </div>
-            <button class="btn btn-outline-primary btn-sm pull-xs-right" :class="{active: article.favorited}">
+            <button class="btn btn-outline-primary btn-sm pull-xs-right" :class="{active: article.favorited}" @click="onFavorite(article)" :disabled="article.favoriteDisabled">
               <i class="ion-heart"></i> {{ article.favoritesCount }}
             </button>
           </div>
@@ -70,7 +72,7 @@
 </template>
 
 <script>
-import { getArticles, getFeedArticles } from '@/api/article'
+import { getArticles, getFeedArticles, addFavorite, deleteFavorite } from '@/api/article'
 import { getTags } from '@/api/tag'
 import { mapState } from 'vuex'
 export default {
@@ -93,6 +95,8 @@ export default {
     ])
     const { articles, articlesCount } = articleRes.data
     const { tags } = tagRes.data
+    // 点赞按钮是否禁用 
+    articles.forEach(article => article.favoriteDisabled = false)
 
     return {
       articles,
@@ -109,6 +113,23 @@ export default {
     ...mapState(['user']),
     totalPage () {
       return Math.ceil(this.articlesCount / this.limit)
+    }
+  },
+  methods: {
+    async onFavorite (article) {
+      article.favoriteDisabled = true
+      if (article.favorited) {
+        // 取消点赞
+        await deleteFavorite(article.slug)
+        article.favorited = false
+        article.favoritesCount -= 1
+      } else {
+        // 添加点赞
+        await addFavorite(article.slug)
+        article.favorited = true
+        article.favoritesCount += 1 
+      }
+      article.favoriteDisabled = false
     }
   }
 }
