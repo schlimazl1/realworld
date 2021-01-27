@@ -17,3 +17,20 @@ export const register = data => {
     data
   })
 }
+
+// settings
+export const getUserInfo = () => {
+  return request({
+    method: 'GET',
+    url: '/api/user'
+  })
+}
+
+// updateSettings
+export const updateUserInfo = data => {
+  return request({
+    method: 'POST',
+    url: '/api/user',
+    data
+  })
+}
