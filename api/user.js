@@ -29,7 +29,7 @@ export const getUserInfo = () => {
 // updateSettings
 export const updateUserInfo = data => {
   return request({
-    method: 'POST',
+    method: 'PUT',
     url: '/api/user',
     data
   })

@@ -54,5 +54,10 @@ module.exports = {
   plugins: [
     '~/plugins/request.js',
     '~/plugins/dayjs.js'
-  ]
+  ],
+  // 
+  server: {
+    host: '0.0.0.0', // 可以对外访问
+    port: 3000
+  }
 }

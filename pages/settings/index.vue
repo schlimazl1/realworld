@@ -37,6 +37,7 @@
 
 <script>
 import { getUserInfo, updateUserInfo } from '@/api/user'
+const Cookie = process.client ? require('js-cookie') : undefined // 仅在客户端加载 js-cookie
 export default {
   // 在路由匹配组件之前会先执行中间件处理
   middleware: ['authenticated'],
@@ -49,8 +50,7 @@ export default {
         bio: '',
         email: '',
         password: '********'
-      },
-      
+      }
     }
   },
   async mounted () {
@@ -63,9 +63,22 @@ export default {
   },
   methods: {
     async updateSettings () {
-      const { data } = await updateUserInfo(this.userInfo)
-      console.log(data)
-      // console.log('1111')
+      try {
+        const { data } = await updateUserInfo({user: {
+          image: this.userInfo.image,
+          username: this.userInfo.username,
+          bio: this.userInfo.bio,
+          email: this.userInfo.email,
+          password: this.userInfo.password,
+        }})
+        // 保存登录状态
+        this.$store.commit('setUser', data.user)
+        // 为了在服务端也能获取用户数据
+        Cookie.set('user', data.user)
+        this.$router.push(`/profile/${data.user.username}`)
+      } catch (error) {
+        console.dir(error)
+      }
     }
   }
 }
