@@ -71,10 +71,10 @@ export default {
         : await register({
             user:this.user
           })
-      // 保存登录状态
-      this.$store.commit('setUser', data.user)
-      // 为了在服务端也能获取用户数据
-      Cookie.set('user', data.user)
+        // 保存登录状态
+        this.$store.commit('setUser', data.user)
+        // 为了在服务端也能获取用户数据
+        Cookie.set('user', data.user)
         this.$router.push('/')
       } catch (error) {
         // 打印错误对象
