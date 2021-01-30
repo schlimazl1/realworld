@@ -58,6 +58,6 @@ module.exports = {
   // 
   server: {
     host: '0.0.0.0', // 可以对外访问
-    port: 3000
+    port: 8080
   }
 }
